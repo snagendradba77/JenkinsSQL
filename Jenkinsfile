@@ -30,7 +30,7 @@ pipeline {
             steps {
                 echo "Running SQL scripts on ${DB_SERVER}..."
                  // Bind credentials to environment variables
-                withCredentials([usernamePassword(credentialsId: 'sql-sa', usernameVariable: 'DB_USER', passwordVariable: 'DB_PASS')]) 
+                withCredentials([usernamePassword(credentialsId: 'sql-sa', usernameVariable: 'DB_USER', passwordVariable: 'DB_PASS')]) {
                 sh '''
                 for file in sql/*.sql; do
                     echo "Executing $file ..."
@@ -40,7 +40,7 @@ pipeline {
             }
         }
     }
-
+}
     post {
         success {
             echo "✅ SQL deployment successful!"
