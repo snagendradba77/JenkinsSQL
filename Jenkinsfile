@@ -4,8 +4,8 @@ pipeline {
     environment {
         // SQL Server connection info
         DB_SERVER = "localhost.localdomain"
-        DB_USER = "sa"
-        DB_PASS = "Mnbv*7894"
+      // DB_USER = "sa"
+       // DB_PASS = "Mnbv*7894"
 
         // Path to sqlcmd (adjust if needed)
         SQLCMD = "/opt/mssql-tools18/bin/sqlcmd"
@@ -29,6 +29,8 @@ pipeline {
         stage('Run SQL Scripts') {
             steps {
                 echo "Running SQL scripts on ${DB_SERVER}..."
+                 // Bind credentials to environment variables
+                withCredentials([usernamePassword(credentialsId: 'sql-sa', usernameVariable: 'DB_USER', passwordVariable: 'DB_PASS')]) 
                 sh '''
                 for file in sql/*.sql; do
                     echo "Executing $file ..."
