@@ -1,52 +1,34 @@
 pipeline {
     agent any
-
-    environment {
-        // SQL Server connection info
-        DB_SERVER = "localhost.localdomain"
-      // DB_USER = "sa"
-       // DB_PASS = "Mnbv*7894"
-
-        // Path to sqlcmd (adjust if needed)
-        SQLCMD = "/opt/mssql-tools18/bin/sqlcmd"
-    }
-
     stages {
         stage('Checkout') {
             steps {
-                echo "Checking out source code..."
                 git branch: 'main', url: 'https://github.com/snagendradba77/JenkinsSQL.git'
             }
         }
 
-        stage('Validate SQL Scripts') {
+        stage('Build') {
             steps {
-                echo "Listing SQL scripts..."
-                sh 'ls -l sql/*.sql || echo "No SQL scripts found!"'
+                sh 'echo Building project...'
             }
         }
 
-        stage('Run SQL Scripts') {
+        stage('Database Migration') {
             steps {
-                echo "Running SQL scripts on ${DB_SERVER}..."
-                 // Bind credentials to environment variables
-                withCredentials([usernamePassword(credentialsId: 'sql-sa', usernameVariable: 'DB_USER', passwordVariable: 'DB_PASS')]) {
                 sh '''
-                for file in sql/*.sql; do
-                    echo "Executing $file ..."
-                    ${SQLCMD} -S ${DB_SERVER} -U ${DB_USER} -P "${DB_PASS}" -C -i "$file"
-                done
+                echo "Running Flyway migrations..."
+                flyway -configFiles=flyway.conf migrate
                 '''
             }
         }
     }
-}
+
     post {
         success {
-            echo "✅ SQL deployment successful!"
+            echo 'Pipeline completed successfully.'
         }
         failure {
-            echo "❌ SQL deployment failed! Check logs."
+            echo 'Pipeline failed!'
         }
     }
 }
